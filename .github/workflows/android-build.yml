@@ -11,17 +11,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Keystore dosyasını oluştur
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_FILE_BASE64 }}" | base64 -d > release.keystore
+
       - name: Export Android
         uses: firebelley/godot-export@v5.2.1
+        env:
+          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ${{ github.workspace }}/release.keystore
+          GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ secrets.ANDROID_KEYSTORE_USER }}
+          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         with:
           godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/4.7/Godot_v4.7.1-stable_linux.x86_64.zip
           godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/4.7/Godot_v4.7.1-stable_export_templates.tpz
           relative_project_path: ./
-          archive_export_output: true
+          archive_output: true
           export_debug: false
-          android_keystore_file_base64: ${{ secrets.ANDROID_KEYSTORE_FILE_BASE64 }}
-          android_keystore_user: ${{ secrets.ANDROID_KEYSTORE_USER }}
-          android_keystore_password: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
 
       - name: APK'yı artifact olarak yükle
         uses: actions/upload-artifact@v4
